@@ -1,0 +1,25 @@
+#include <algorithm>
+#include <ctime>
+#include <iostream>
+#include <random>
+#include <string>
+#include <vector>
+#include "card.hpp"
+using namespace std;
+// Game state
+class FreecellGame {
+private:
+  vector<vector<Card>> tableau;     // 8 columns
+  vector<Card> freecells;           // 4 free cells
+  vector<vector<Card>> foundations; // 4 foundation piles
+
+  void initializeDeck(vector<Card> &deck);
+  void shuffleDeck(vector<Card> &deck);
+  void dealCards(vector<Card> &deck);
+
+public:
+  FreecellGame();
+  void newGame();
+  void display() const;
+  bool isWon() const;
+};
