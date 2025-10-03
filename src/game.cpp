@@ -58,7 +58,7 @@ void FreecellGame::display() const {
       cout << "[ ] ";
     }
   }
-  cout << "\n\n";
+  cout << "\n";
 
   // Display foundations
   cout << "Foundations: ";
@@ -69,10 +69,14 @@ void FreecellGame::display() const {
       cout << "[ ] ";
     }
   }
-  cout << "\n\n";
+  cout << "\n";
 
   // Display tableau
-  cout << "Tableau:\n";
+  for (size_t i = 0; i < tableau.size(); i++) {
+    cout << "T" << (i + 1) << "  ";
+  }
+  cout << "\n";
+
   size_t maxHeight = 0;
   for (const auto &col : tableau) {
     maxHeight = std::max(maxHeight, col.size());
@@ -177,7 +181,7 @@ void FreecellGame::moveCard(const string &from, const string &to) {
         cout << "Cannot move " << cardToMove.toString() << " to Tableau "
              << destTableauIndex + 1 << ".\n";
       }
-    } else if (to[0] == 'F') {
+    } else if (to[0] == 'O') {
       // Move to Foundation
       int foundationIndex = to[1] - '1';
       if (foundationIndex < 0 || foundationIndex >= 4) {
@@ -193,7 +197,7 @@ void FreecellGame::moveCard(const string &from, const string &to) {
         cout << "Cannot move " << cardToMove.toString() << " to Foundation "
              << foundationIndex + 1 << ".\n";
       }
-    } else if (to[0] == 'C') {
+    } else if (to[0] == 'F') {
       // Move to Freecell
       int freecellIndex = to[1] - '1';
       if (freecellIndex < 0 || freecellIndex >= 4 ||
@@ -206,9 +210,9 @@ void FreecellGame::moveCard(const string &from, const string &to) {
       cout << "Moved " << cardToMove.toString() << " to Freecell "
            << freecellIndex + 1 << ".\n";
     } else {
-      cout
-          << "Invalid destination. Use 'T' for Tableau, 'F' for Foundation, or "
-             "'C' for Freecell.\n";
+      cout << "Invalid destination. Use 'T' for Tableau, 'F' for Foundation, "
+              "or "
+              "'C' for Freecell.\n";
     }
   } else {
     cout << "Invalid source. Use 'T' for Tableau or 'F' for Freecell.\n";
@@ -232,13 +236,13 @@ bool FreecellGame::canMoveToFoundation(const Card &card,
 }
 
 bool FreecellGame::canMoveToTableau(const Card &card, int tableauIndex) const {
-    if (tableauIndex < 0 || tableauIndex >= 8)
-        return false;
-  const auto &tableau = tableaux[tableauIndex];
-  if (tableau.empty()) {
+  if (tableauIndex < 0 || tableauIndex >= 8)
+    return false;
+  const auto &tab = tableau[tableauIndex];
+  if (tab.empty()) {
     return card.rank == 13; // King can be placed on empty tableau
   }
-  const Card &topCard = tableau.back();
+  const Card &topCard = tab.back();
   if (topCard.isRed() == card.isRed())
     return false;
   if (card.rank == topCard.rank - 1)
@@ -246,20 +250,158 @@ bool FreecellGame::canMoveToTableau(const Card &card, int tableauIndex) const {
   return false;
 }
 
+int FreecellGame::howManyCanMove() const {
+  int emptyFreecells = 0;
+  for (const Card &cell : freecells) {
+    if (cell.rank == 0)
+      ++emptyFreecells;
+  }
+  int emptyTableaus = 0;
+  for (const auto &col : tableau) {
+    if (col.empty())
+      ++emptyTableaus;
+  }
+  return (emptyFreecells + 1) * (1 + emptyTableaus);
+}
+
+void FreecellGame::autoMoveToFoundation() {
+  bool moved;
+  do {
+    moved = false;
+    for (size_t i = 0; i < tableau.size(); ++i) {
+      if (!tableau[i].empty()) {
+        Card cardToMove = tableau[i].back();
+        for (size_t j = 0; j < foundations.size(); ++j) {
+          if (canMoveToFoundation(cardToMove, j)) {
+            foundations[j].push_back(cardToMove);
+            tableau[i].pop_back();
+            cout << "Auto-moved " << cardToMove.toString() << " to Foundation "
+                 << j + 1 << ".\n";
+            moved = true;
+            break;
+          }
+        }
+      }
+    }
+    for (size_t i = 0; i < freecells.size(); ++i) {
+      if (freecells[i].rank != 0) {
+        Card cardToMove = freecells[i];
+        for (size_t j = 0; j < foundations.size(); ++j) {
+          if (canMoveToFoundation(cardToMove, j)) {
+            foundations[j].push_back(cardToMove);
+            freecells[i] = Card{' ', 0};
+            cout << "Auto-moved " << cardToMove.toString() << " to Foundation "
+                 << j + 1 << ".\n";
+            moved = true;
+            break;
+          }
+        }
+      }
+    }
+  } while (moved);
+}
+
+void FreecellGame::autoMoveOneCard(const string &from) {
+  if (from.empty()) {
+    cout << "Invalid command.\n";
+    return;
+  }
+  if (from[0] == 'T') {
+    int tableauIndex = from[1] - '1';
+    if (tableauIndex < 0 || tableauIndex >= 8 ||
+        tableau[tableauIndex].empty()) {
+      cout << "Invalid Tableau index or empty Tableau column.\n";
+      return;
+    }
+    Card cardToMove = tableau[tableauIndex].back();
+    for (size_t j = 0; j < foundations.size(); ++j) {
+      if (canMoveToFoundation(cardToMove, j)) {
+        foundations[j].push_back(cardToMove);
+        tableau[tableauIndex].pop_back();
+        cout << "Auto-moved " << cardToMove.toString() << " to Foundation "
+             << j + 1 << ".\n";
+        return;
+      }
+    }
+    for (size_t j = 0; j < freecells.size(); ++j) {
+      if (freecells[j].rank == 0) {
+        freecells[j] = cardToMove;
+        tableau[tableauIndex].pop_back();
+        cout << "Auto-moved " << cardToMove.toString() << " to Freecell "
+             << j + 1 << ".\n";
+        return;
+      }
+    }
+    cout << "No valid moves to Foundation for " << cardToMove.toString()
+         << ".\n";
+  } else if (from[0] == 'F') {
+    int freecellIndex = from[1] - '1';
+    if (freecellIndex < 0 || freecellIndex >= 4 ||
+        freecells[freecellIndex].rank == 0) {
+      cout << "Invalid Freecell index or empty Freecell.\n";
+      return;
+    }
+    Card cardToMove = freecells[freecellIndex];
+    for (size_t j = 0; j < foundations.size(); ++j) {
+      if (canMoveToFoundation(cardToMove, j)) {
+        foundations[j].push_back(cardToMove);
+        freecells[freecellIndex] = Card{' ', 0};
+        cout << "Auto-moved " << cardToMove.toString() << " to Foundation "
+             << j + 1 << ".\n";
+        return;
+      }
+    }
+    cout << "No valid moves to Foundation for " << cardToMove.toString()
+         << ".\n";
+  } else {
+    cout << "Invalid source. Use 'T' for Tableau or 'F' for Freecell.\n";
+  }
+}
+
 void FreecellGame::gameLoop() {
   string command;
+  display();
+
   while (true) {
-    display();
     if (isWon()) {
       cout << "Congratulations! You won!\n";
       break;
     }
-    cout << "Enter move (e.g., 'F1 T3' to move from Freecell 1 to Tableau 3) "
-            "or 'q' to quit: ";
+    cout << "Enter move : ";
     getline(cin, command);
-    if (command == "q") {
+    if (command == "q" || command == "quit" || command == "exit" ||
+        command == "Q") {
       cout << "Thanks for playing!\n";
       break;
+    }
+    if (command == "reset") {
+      newGame();
+      cout << "Game has been reset.\n";
+      display();
+      continue;
+    }
+    if (command == "help" || command == "?" || command == "h" ||
+        command.empty() || command == "commands" || command == "H") {
+      cout << "Commands:\n"
+              "  F1 T3 - Move card from Freecell 1 to Tableau 3\n"
+              "  T2 O1 - Move card from Tableau 2 to Foundation 1\n"
+              "  T4 F2 - Move card from Tableau 4 to Freecell 2\n"
+              "  q quit- Quit the game\n"
+              "  exit  - Quit the game\n"
+              "  help  - Show this help message\n"
+              "  reset - Start a new game\n"
+              "  show  - Display the current game state\n"
+              "  auto  - Automatically move possible cards to foundations\n";
+      continue;
+    }
+    if (command == "show" || command == "display") {
+      display();
+      continue;
+    }
+    if (command == "auto") {
+      autoMoveToFoundation();
+      display();
+      continue;
     }
     // Parse and execute the command
     size_t spacePos = command.find(' ');
@@ -267,8 +409,10 @@ void FreecellGame::gameLoop() {
       string from = command.substr(0, spacePos);
       string to = command.substr(spacePos + 1);
       moveCard(from, to);
+      display();
     } else {
-      cout << "Invalid command format. Please try again.\n";
+      autoMoveOneCard(command);
+      display();
     }
   }
 }

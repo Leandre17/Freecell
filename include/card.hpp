@@ -16,3 +16,11 @@ public:
   string toString() const;
   bool isRed() const;
 };
+
+enum MyEnum
+{
+    HEARTS = 'H',
+    DIAMONDS = 'D',
+    CLUBS = 'C',
+    SPADES = 'S'
+};

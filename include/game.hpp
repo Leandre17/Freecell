@@ -19,11 +19,14 @@ private:
   void moveCard(const string &from, const string &to);
   bool canMoveToFoundation(const Card &card, int foundationIndex) const;
   bool canMoveToTableau(const Card &card, int tableauIndex) const;
+  int howManyCanMove() const;
+  bool isWon() const;
+  void autoMoveToFoundation();
+  void autoMoveOneCard(const string &from);
 
 public:
   FreecellGame();
   void newGame();
   void display() const;
-  bool isWon() const;
   void gameLoop();
 };

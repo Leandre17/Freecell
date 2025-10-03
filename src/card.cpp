@@ -3,6 +3,8 @@ using namespace std;
 
 string Card::toString() const {
   string rankStr;
+  string suitStr;
+
   if (rank == 1)
     rankStr = "A";
   else if (rank == 11)
@@ -13,7 +15,23 @@ string Card::toString() const {
     rankStr = "K";
   else
     rankStr = to_string(rank);
-  return rankStr + suit;
+  switch (suit) {
+  case HEARTS:
+    suitStr = "♥";
+    break;
+  case DIAMONDS:
+    suitStr = "♦";
+    break;
+  case CLUBS:
+    suitStr = "♣";
+    break;
+  case SPADES:
+    suitStr = "♠";
+    break;
+  default:
+    break;
+  }
+  return rankStr + suitStr;
 }
 
-bool Card::isRed() const { return suit == 'H' || suit == 'D'; }
+bool Card::isRed() const { return suit == HEARTS || suit == DIAMONDS; }
