@@ -9,10 +9,7 @@ int main() {
     
     game.newGame();
     game.display();
-    
-    if (game.isWon()) {
-        cout << "Congratulations! You won!\n";
-    }
+    game.gameLoop();
     
     return 0;
 }

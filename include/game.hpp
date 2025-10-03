@@ -16,10 +16,14 @@ private:
   void initializeDeck(vector<Card> &deck);
   void shuffleDeck(vector<Card> &deck);
   void dealCards(vector<Card> &deck);
+  void moveCard(const string &from, const string &to);
+  bool canMoveToFoundation(const Card &card, int foundationIndex) const;
+  bool canMoveToTableau(const Card &card, int tableauIndex) const;
 
 public:
   FreecellGame();
   void newGame();
   void display() const;
   bool isWon() const;
+  void gameLoop();
 };
