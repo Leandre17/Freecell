@@ -119,11 +119,6 @@ public:
             }
             cout << "\n";
         }
-        cout << "\n";
-        for (int i = 0; i < 8; i++) {
-            cout << i << "   ";
-        }
-        cout << "\n";
     }
     
     bool isWon() const {
@@ -137,21 +132,11 @@ public:
 int main() {
     FreecellGame game;
     
-    cout << "Welcome to Freecell!\n";
-    cout << "A classic card game implemented in C++\n";
-    
     game.newGame();
     game.display();
     
     if (game.isWon()) {
         cout << "Congratulations! You won!\n";
-    } else {
-        cout << "\nThis is a basic display of the Freecell game.\n";
-        cout << "Future versions will include:\n";
-        cout << "- Move validation and execution\n";
-        cout << "- Auto-move to foundations\n";
-        cout << "- Undo/Redo functionality\n";
-        cout << "- Win condition checking\n";
     }
     
     return 0;
