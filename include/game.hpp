@@ -23,6 +23,7 @@ private:
   bool isWon() const;
   void autoMoveToFoundation();
   void autoMoveOneCard(const string &from);
+  void moveSequence(const string &from, const string &to, int count);
 
 public:
   FreecellGame();

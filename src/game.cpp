@@ -47,7 +47,7 @@ void FreecellGame::newGame() {
 }
 
 void FreecellGame::display() const {
-  cout << "\n=== Freecell ===\n\n";
+  cout << "\n=== Freecell ===\n";
 
   // Display freecells
   cout << "Free Cells: ";
@@ -103,14 +103,11 @@ bool FreecellGame::isWon() const {
 }
 
 void FreecellGame::moveCard(const string &from, const string &to) {
-  cout << "Move from " << from << " to " << to
-       << " (functionality not yet implemented)\n";
-
   if (from.empty() || to.empty()) {
     cout << "Invalid move command.\n";
     return;
   }
-  if (from[0] == 'F') {
+  if (from[0] == 'f') {
     // Moving from Freecell
     int freecellIndex = from[1] - '1';
     if (freecellIndex < 0 || freecellIndex >= 4 ||
@@ -120,7 +117,7 @@ void FreecellGame::moveCard(const string &from, const string &to) {
     }
     Card cardToMove = freecells[freecellIndex];
 
-    if (to[0] == 'T') {
+    if (to[0] == 't') {
       // Move to Tableau
       int tableauIndex = to[1] - '1';
       if (tableauIndex < 0 || tableauIndex >= 8) {
@@ -136,7 +133,7 @@ void FreecellGame::moveCard(const string &from, const string &to) {
         cout << "Cannot move " << cardToMove.toString() << " to Tableau "
              << tableauIndex + 1 << ".\n";
       }
-    } else if (to[0] == 'O') {
+    } else if (to[0] == 'o') {
       // Move to Foundation
       int foundationIndex = to[1] - '1';
       if (foundationIndex < 0 || foundationIndex >= 4) {
@@ -156,7 +153,7 @@ void FreecellGame::moveCard(const string &from, const string &to) {
       cout << "Invalid destination. Use 'T' for Tableau or 'O' for "
               "Foundation.\n";
     }
-  } else if (from[0] == 'T') {
+  } else if (from[0] == 't') {
     // Moving from Tableau
     int tableauIndex = from[1] - '1';
     if (tableauIndex < 0 || tableauIndex >= 8 ||
@@ -165,7 +162,7 @@ void FreecellGame::moveCard(const string &from, const string &to) {
       return;
     }
     Card cardToMove = tableau[tableauIndex].back();
-    if (to[0] == 'T') {
+    if (to[0] == 't') {
       // Move to another Tableau
       int destTableauIndex = to[1] - '1';
       if (destTableauIndex < 0 || destTableauIndex >= 8) {
@@ -181,7 +178,7 @@ void FreecellGame::moveCard(const string &from, const string &to) {
         cout << "Cannot move " << cardToMove.toString() << " to Tableau "
              << destTableauIndex + 1 << ".\n";
       }
-    } else if (to[0] == 'O') {
+    } else if (to[0] == 'o') {
       // Move to Foundation
       int foundationIndex = to[1] - '1';
       if (foundationIndex < 0 || foundationIndex >= 4) {
@@ -197,7 +194,7 @@ void FreecellGame::moveCard(const string &from, const string &to) {
         cout << "Cannot move " << cardToMove.toString() << " to Foundation "
              << foundationIndex + 1 << ".\n";
       }
-    } else if (to[0] == 'F') {
+    } else if (to[0] == 'f') {
       // Move to Freecell
       int freecellIndex = to[1] - '1';
       if (freecellIndex < 0 || freecellIndex >= 4 ||
@@ -240,7 +237,7 @@ bool FreecellGame::canMoveToTableau(const Card &card, int tableauIndex) const {
     return false;
   const auto &tab = tableau[tableauIndex];
   if (tab.empty()) {
-    return card.rank == 13; // King can be placed on empty tableau
+    return true; // Any card can be placed on empty tableau
   }
   const Card &topCard = tab.back();
   if (topCard.isRed() == card.isRed())
@@ -306,7 +303,7 @@ void FreecellGame::autoMoveOneCard(const string &from) {
     cout << "Invalid command.\n";
     return;
   }
-  if (from[0] == 'T') {
+  if (from[0] == 't') {
     int tableauIndex = from[1] - '1';
     if (tableauIndex < 0 || tableauIndex >= 8 ||
         tableau[tableauIndex].empty()) {
@@ -334,7 +331,7 @@ void FreecellGame::autoMoveOneCard(const string &from) {
     }
     cout << "No valid moves to Foundation for " << cardToMove.toString()
          << ".\n";
-  } else if (from[0] == 'F') {
+  } else if (from[0] == 'f') {
     int freecellIndex = from[1] - '1';
     if (freecellIndex < 0 || freecellIndex >= 4 ||
         freecells[freecellIndex].rank == 0) {
@@ -358,6 +355,62 @@ void FreecellGame::autoMoveOneCard(const string &from) {
   }
 }
 
+void FreecellGame::moveSequence(const string &from, const string &to,
+                                int count) {
+  if (from.empty() || to.empty() || count <= 0 || from[0] != 't' ||
+      to[0] != 't') {
+    cout << "Invalid move command.\n";
+    return;
+  } else if (count > howManyCanMove()) {
+    cout << "Cannot move more than " << howManyCanMove() << " cards at once.\n";
+    return;
+  }
+  int tableauIndex = from[1] - '1';
+  int tableauDestination = to[1] - '1';
+  if (tableauIndex < 0 || tableauIndex >= 8 || tableau[tableauIndex].empty()) {
+    cout << "Invalid Tableau index or empty Tableau column.\n";
+    return;
+  }
+  if (tableauDestination < 0 || tableauDestination >= 8) {
+    cout << "Invalid destination Tableau index.\n";
+    return;
+  }
+  if (tableau[tableauIndex].size() < count) {
+    cout << "Not enough cards in the source Tableau column.\n";
+    return;
+  }
+  // Check if the sequence is valid
+  for (int i = 0; i < count - 1; ++i) {
+    const Card &currentCard =
+        tableau[tableauIndex][tableau[tableauIndex].size() - count + i];
+    const Card &nextCard =
+        tableau[tableauIndex][tableau[tableauIndex].size() - count + i + 1];
+    if (currentCard.rank != nextCard.rank + 1 ||
+        currentCard.isRed() == nextCard.isRed()) {
+      cout << "Invalid card sequence.\n";
+      std::cout << "Current: " << currentCard.toString()
+                << ", Next: " << nextCard.toString() << "\n"; // Debug info
+      return;
+    }
+  }
+  // Check if the move to destination tableau is valid
+  const Card &movingCard =
+      tableau[tableauIndex][tableau[tableauIndex].size() - count];
+  if (!canMoveToTableau(movingCard, tableauDestination)) {
+    cout << "Cannot move sequence to the destination Tableau.\n";
+    return;
+  }
+  // Move the cards
+  for (int i = 0; i < count; ++i) {
+    Card cardToMove =
+        tableau[tableauIndex][tableau[tableauIndex].size() - count + i];
+    tableau[tableauDestination].push_back(cardToMove);
+  }
+  tableau[tableauIndex].resize(tableau[tableauIndex].size() - count);
+  cout << "Moved sequence of " << count << " cards from Tableau "
+       << tableauIndex + 1 << " to Tableau " << tableauDestination + 1 << ".\n";
+}
+
 void FreecellGame::gameLoop() {
   string command;
   display();
@@ -369,8 +422,10 @@ void FreecellGame::gameLoop() {
     }
     cout << "Enter move : ";
     getline(cin, command);
-    if (command == "q" || command == "quit" || command == "exit" ||
-        command == "Q") {
+    transform(command.begin(), command.end(), command.begin(),
+              [](unsigned char c) { return std::tolower(c); });
+
+    if (command == "q" || command == "quit" || command == "exit") {
       cout << "Thanks for playing!\n";
       break;
     }
@@ -381,13 +436,16 @@ void FreecellGame::gameLoop() {
       continue;
     }
     if (command == "help" || command == "?" || command == "h" ||
-        command.empty() || command == "commands" || command == "H") {
+        command.empty() || command == "commands") {
       cout << "Commands:\n"
               "  F1 T3 - Move card from Freecell 1 to Tableau 3\n"
               "  T2 O1 - Move card from Tableau 2 to Foundation 1\n"
               "  T4 F2 - Move card from Tableau 4 to Freecell 2\n"
-              "  q quit- Quit the game\n"
-              "  exit  - Quit the game\n"
+              "  T5 T6 3 - Move sequence of 3 cards from Tableau 5 to "
+              "Tableau 6\n"
+              "  T2   - Auto-move top card from Tableau 2 to Foundation if "
+              "possible\n"
+              "  quit  - Quit the game\n"
               "  help  - Show this help message\n"
               "  reset - Start a new game\n"
               "  show  - Display the current game state\n"
@@ -408,7 +466,14 @@ void FreecellGame::gameLoop() {
     if (spacePos != string::npos) {
       string from = command.substr(0, spacePos);
       string to = command.substr(spacePos + 1);
-      moveCard(from, to);
+      size_t index = to.find(' ');
+      if (index == string::npos)
+        moveCard(from, to);
+      else {
+        string nb = to.substr(index + 1);
+        to = to.substr(0, index);
+        moveSequence(from, to, stoi(nb));
+      }
       display();
     } else {
       autoMoveOneCard(command);
