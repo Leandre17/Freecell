@@ -73,7 +73,7 @@ void FreecellGame::display() const {
 
   // Display tableau
   for (size_t i = 0; i < tableau.size(); i++) {
-    cout << "T" << (i + 1) << "  ";
+    cout << "T" << (i + 1) << "\t";
   }
   cout << "\n";
 
@@ -85,9 +85,9 @@ void FreecellGame::display() const {
   for (size_t row = 0; row < maxHeight; ++row) {
     for (size_t col = 0; col < 8; ++col) {
       if (row < tableau[col].size()) {
-        cout << tableau[col][row].toString() << "  ";
+        cout << tableau[col][row].toString() << "\t";
       } else {
-        cout << "    ";
+        cout << "\t";
       }
     }
     cout << "\n";

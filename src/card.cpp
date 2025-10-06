@@ -17,10 +17,10 @@ string Card::toString() const {
     rankStr = to_string(rank);
   switch (suit) {
   case HEARTS:
-    suitStr = "♥";
+    suitStr = "\033[1;31m♥\033[0m";
     break;
   case DIAMONDS:
-    suitStr = "♦";
+    suitStr = "\033[1;31m♦\033[0m";
     break;
   case CLUBS:
     suitStr = "♣";
