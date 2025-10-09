@@ -17,10 +17,4 @@ public:
   bool isRed() const;
 };
 
-enum MyEnum
-{
-    HEARTS = 'H',
-    DIAMONDS = 'D',
-    CLUBS = 'C',
-    SPADES = 'S'
-};
+enum MyEnum { HEARTS = 'H', DIAMONDS = 'D', CLUBS = 'C', SPADES = 'S' };

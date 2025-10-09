@@ -1,6 +1,16 @@
 #include "card.hpp"
 using namespace std;
 
+static bool canUseColors() {
+  const char *term = getenv("TERM");
+  if (!term)
+    return false;
+  string termStr(term);
+  return termStr == "xterm" || termStr == "xterm-256color" ||
+         termStr == "screen" || termStr == "screen-256color" ||
+         termStr == "linux" || termStr == "cygwin";
+}
+
 string Card::toString() const {
   string rankStr;
   string suitStr;
@@ -17,10 +27,10 @@ string Card::toString() const {
     rankStr = to_string(rank);
   switch (suit) {
   case HEARTS:
-    suitStr = "\033[1;31m♥\033[0m";
+    suitStr = canUseColors() ? "\033[1;31m♥\033[0m" : "♥";
     break;
   case DIAMONDS:
-    suitStr = "\033[1;31m♦\033[0m";
+    suitStr = canUseColors() ? "\033[1;31m♦\033[0m" : "♦";
     break;
   case CLUBS:
     suitStr = "♣";
