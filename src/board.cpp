@@ -1,11 +1,14 @@
 #include "game.hpp"
 using namespace std;
 
-bool FreecellBoard::operator!=(const FreecellBoard& b) const {
-    if (tableau != b.tableau) return true;
-    if (freecells != b.freecells) return true;
-    if (foundations != b.foundations) return true;
-    return false;
+bool FreecellBoard::operator!=(const FreecellBoard &b) const {
+  if (tableau != b.tableau)
+    return true;
+  if (freecells != b.freecells)
+    return true;
+  if (foundations != b.foundations)
+    return true;
+  return false;
 }
 
 void FreecellBoard::initializeDeck(vector<Card> &deck) {
@@ -40,7 +43,7 @@ FreecellBoard::FreecellBoard() {
 void FreecellBoard::moveCard(const string &from, const string &to) {
   if (from.empty() || to.empty()) {
     cout << "Invalid move command.\n";
-    return;
+    throw InvalidMoveException();
   }
   if (from[0] == 'f') {
     // Moving from Freecell
@@ -48,7 +51,7 @@ void FreecellBoard::moveCard(const string &from, const string &to) {
     if (freecellIndex < 0 || freecellIndex >= 4 ||
         freecells[freecellIndex].rank == 0) {
       cout << "Invalid Freecell index or empty Freecell.\n";
-      return;
+      throw InvalidMoveException();
     }
     Card cardToMove = freecells[freecellIndex];
 
@@ -57,7 +60,7 @@ void FreecellBoard::moveCard(const string &from, const string &to) {
       int tableauIndex = to[1] - '1';
       if (tableauIndex < 0 || tableauIndex >= 8) {
         cout << "Invalid Tableau index.\n";
-        return;
+        throw InvalidMoveException();
       }
       if (canMoveToTableau(cardToMove, tableauIndex)) {
         tableau[tableauIndex].push_back(cardToMove);
@@ -73,7 +76,7 @@ void FreecellBoard::moveCard(const string &from, const string &to) {
       int foundationIndex = to[1] - '1';
       if (foundationIndex < 0 || foundationIndex >= 4) {
         cout << "Invalid Foundation index.\n";
-        return;
+        throw InvalidMoveException();
       }
       if (canMoveToFoundation(cardToMove, foundationIndex)) {
         foundations[foundationIndex].push_back(cardToMove);
@@ -102,7 +105,7 @@ void FreecellBoard::moveCard(const string &from, const string &to) {
       int destTableauIndex = to[1] - '1';
       if (destTableauIndex < 0 || destTableauIndex >= 8) {
         cout << "Invalid destination Tableau index.\n";
-        return;
+        throw InvalidMoveException();
       }
       if (canMoveToTableau(cardToMove, destTableauIndex)) {
         tableau[destTableauIndex].push_back(cardToMove);
@@ -118,7 +121,7 @@ void FreecellBoard::moveCard(const string &from, const string &to) {
       int foundationIndex = to[1] - '1';
       if (foundationIndex < 0 || foundationIndex >= 4) {
         cout << "Invalid Foundation index.\n";
-        return;
+        throw InvalidMoveException();
       }
       if (canMoveToFoundation(cardToMove, foundationIndex)) {
         foundations[foundationIndex].push_back(cardToMove);
@@ -135,7 +138,7 @@ void FreecellBoard::moveCard(const string &from, const string &to) {
       if (freecellIndex < 0 || freecellIndex >= 4 ||
           freecells[freecellIndex].rank != 0) {
         cout << "Invalid Freecell index or Freecell already occupied.\n";
-        return;
+        throw InvalidMoveException();
       }
       freecells[freecellIndex] = cardToMove;
       tableau[tableauIndex].pop_back();
@@ -236,14 +239,14 @@ void FreecellBoard::autoMoveToFoundation() {
 void FreecellBoard::autoMoveOneCard(const string &from) {
   if (from.empty()) {
     cout << "Invalid command.\n";
-    return;
+    throw InvalidMoveException();
   }
   if (from[0] == 't') {
     int tableauIndex = from[1] - '1';
     if (tableauIndex < 0 || tableauIndex >= 8 ||
         tableau[tableauIndex].empty()) {
       cout << "Invalid Tableau index or empty Tableau column.\n";
-      return;
+      throw InvalidMoveException();
     }
     Card cardToMove = tableau[tableauIndex].back();
     for (size_t j = 0; j < foundations.size(); ++j) {
@@ -266,12 +269,13 @@ void FreecellBoard::autoMoveOneCard(const string &from) {
     }
     cout << "No valid moves to Foundation for " << cardToMove.toString()
          << ".\n";
+    throw InvalidMoveException();
   } else if (from[0] == 'f') {
     int freecellIndex = from[1] - '1';
     if (freecellIndex < 0 || freecellIndex >= 4 ||
         freecells[freecellIndex].rank == 0) {
       cout << "Invalid Freecell index or empty Freecell.\n";
-      return;
+      throw InvalidMoveException();
     }
     Card cardToMove = freecells[freecellIndex];
     for (size_t j = 0; j < foundations.size(); ++j) {
@@ -285,6 +289,7 @@ void FreecellBoard::autoMoveOneCard(const string &from) {
     }
     cout << "No valid moves to Foundation for " << cardToMove.toString()
          << ".\n";
+    throw InvalidMoveException();
   } else {
     cout << "Invalid source. Use 'T' for Tableau or 'F' for Freecell.\n";
   }
@@ -295,24 +300,24 @@ void FreecellBoard::moveSequence(const string &from, const string &to,
   if (from.empty() || to.empty() || count <= 0 || from[0] != 't' ||
       to[0] != 't') {
     cout << "Invalid move command.\n";
-    return;
+    throw InvalidMoveException();
   } else if (count > howManyCanMove()) {
     cout << "Cannot move more than " << howManyCanMove() << " cards at once.\n";
-    return;
+    throw InvalidMoveException();
   }
   int tableauIndex = from[1] - '1';
   int tableauDestination = to[1] - '1';
   if (tableauIndex < 0 || tableauIndex >= 8 || tableau[tableauIndex].empty()) {
     cout << "Invalid Tableau index or empty Tableau column.\n";
-    return;
+    throw InvalidMoveException();
   }
   if (tableauDestination < 0 || tableauDestination >= 8) {
     cout << "Invalid destination Tableau index.\n";
-    return;
+    throw InvalidMoveException();
   }
   if (tableau[tableauIndex].size() < count) {
     cout << "Not enough cards in the source Tableau column.\n";
-    return;
+    throw InvalidMoveException();
   }
   // Check if the sequence is valid
   for (int i = 0; i < count - 1; ++i) {
@@ -323,9 +328,7 @@ void FreecellBoard::moveSequence(const string &from, const string &to,
     if (currentCard.rank != nextCard.rank + 1 ||
         currentCard.isRed() == nextCard.isRed()) {
       cout << "Invalid card sequence.\n";
-      std::cout << "Current: " << currentCard.toString()
-                << ", Next: " << nextCard.toString() << "\n"; // Debug info
-      return;
+      throw InvalidMoveException();
     }
   }
   // Check if the move to destination tableau is valid
@@ -333,7 +336,7 @@ void FreecellBoard::moveSequence(const string &from, const string &to,
       tableau[tableauIndex][tableau[tableauIndex].size() - count];
   if (!canMoveToTableau(movingCard, tableauDestination)) {
     cout << "Cannot move sequence to the destination Tableau.\n";
-    return;
+    throw InvalidMoveException();
   }
   // Move the cards
   for (int i = 0; i < count; ++i) {

@@ -14,7 +14,7 @@ public:
   vector<Card> freecells;           // 4 free cells
   vector<vector<Card>> foundations; // 4 foundation piles
   FreecellBoard();
-  bool operator!=(const FreecellBoard& b) const;
+  bool operator!=(const FreecellBoard &b) const;
   void initializeDeck(vector<Card> &deck);
   void shuffleDeck(vector<Card> &deck);
   void dealCards(vector<Card> &deck);
@@ -26,4 +26,9 @@ public:
   void autoMoveOneCard(const string &from);
   void moveSequence(const string &from, const string &to, int count);
   void display() const;
+};
+
+class InvalidMoveException : public std::exception {
+public:
+  const char *what() const noexcept override { return "Invalid move"; }
 };

@@ -14,6 +14,7 @@ private:
   list<string> moveHistory;
   list<FreecellBoard> boardHistory;
   bool isWon() const;
+  void handleMoveCommands(const string &command);
 
 public:
   FreecellGame();

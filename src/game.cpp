@@ -94,6 +94,8 @@ void FreecellGame::gameLoop() {
     getline(cin, command);
     transform(command.begin(), command.end(), command.begin(),
               [](unsigned char c) { return std::tolower(c); });
+    command.erase(remove_if(command.begin(), command.end(), ::isspace),
+                  command.end());
 
     if (command == "q" || command == "quit" || command == "exit") {
       cout << "Thanks for playing!\n";
@@ -117,7 +119,8 @@ void FreecellGame::gameLoop() {
               "  help  - Show this help message\n"
               "  reset - Start a new game\n"
               "  show  - Display the current game state\n"
-              "  auto  - Automatically move possible cards to foundations\n";
+              "  auto  - Automatically move possible cards to foundations\n"
+              "  undo [n] - Undo the last move or the last n moves\n";
       continue;
     } else if (command == "show" || command == "display") {
       display();
@@ -142,34 +145,40 @@ void FreecellGame::gameLoop() {
       display();
       continue;
     } else {
+    }
+    try {
+      handleMoveCommands(command);
       boardHistory.push_back(board);
-      std::cout << "Move recorded. Total moves: " << boardHistory.size() - 1
-                << "\n";
+      moveHistory.push_back(command);
+    } catch (const std::exception &) {
     }
-    // Parse and execute the command
-    size_t spacePos = command.find(' ');
-    if (spacePos != string::npos) {
-      string from = command.substr(0, spacePos);
-      string to = command.substr(spacePos + 1);
-      size_t index = to.find(' ');
-      if (index == string::npos)
-        board.moveCard(from, to);
-      else {
-        string nb = to.substr(index + 1);
-        to = to.substr(0, index);
-        try {
-          int count = stoi(nb);
-          board.moveSequence(from, to, count);
-        } catch (const std::exception &) {
-          cout << "Invalid number of cards to move.\n";
-          continue;
-        }
+  }
+}
+
+void FreecellGame::handleMoveCommands(const string &command) {
+  // Parse and execute the command
+  size_t spacePos = command.find(' ');
+  if (spacePos != string::npos) {
+    string from = command.substr(0, spacePos);
+    string to = command.substr(spacePos + 1);
+    size_t index = to.find(' ');
+    if (index == string::npos)
+      board.moveCard(from, to);
+    else {
+      string nb = to.substr(index + 1);
+      to = to.substr(0, index);
+      try {
+        int count = stoi(nb);
+        board.moveSequence(from, to, count);
+      } catch (const std::exception &) {
+        cout << "Invalid number of cards to move.\n";
+        throw InvalidMoveException();
       }
-      display();
-    } else {
-      board.autoMoveOneCard(command);
-      display();
     }
+    display();
+  } else {
+    board.autoMoveOneCard(command);
+    display();
   }
 }
 
