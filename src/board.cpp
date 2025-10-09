@@ -1,6 +1,13 @@
 #include "game.hpp"
 using namespace std;
 
+bool FreecellBoard::operator!=(const FreecellBoard& b) const {
+    if (tableau != b.tableau) return true;
+    if (freecells != b.freecells) return true;
+    if (foundations != b.foundations) return true;
+    return false;
+}
+
 void FreecellBoard::initializeDeck(vector<Card> &deck) {
   const std::vector<char> suits = {'H', 'D', 'C', 'S'};
   for (char suit : suits) {

@@ -9,6 +9,9 @@ public:
   Card(const Card &) = default;
   Card &operator=(Card &&) = default;
   Card &operator=(const Card &) = default;
+  bool operator==(const Card& b) const {
+      return suit == b.suit && rank == b.rank;
+  }
   ~Card() = default;
 
   char suit;

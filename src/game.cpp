@@ -20,6 +20,9 @@ void FreecellGame::newGame() {
   board.initializeDeck(deck);
   board.shuffleDeck(deck);
   board.dealCards(deck);
+  boardHistory.clear();
+  boardHistory.push_back(board);
+  moveHistory.clear();
 }
 
 void FreecellGame::display() const {
@@ -95,15 +98,13 @@ void FreecellGame::gameLoop() {
     if (command == "q" || command == "quit" || command == "exit") {
       cout << "Thanks for playing!\n";
       break;
-    }
-    if (command == "reset") {
+    } else if (command == "reset") {
       newGame();
       cout << "Game has been reset.\n";
       display();
       continue;
-    }
-    if (command == "help" || command == "?" || command == "h" ||
-        command.empty() || command == "commands") {
+    } else if (command == "help" || command == "?" || command == "h" ||
+               command.empty() || command == "commands") {
       cout << "Commands:\n"
               "  F1 T3 - Move card from Freecell 1 to Tableau 3\n"
               "  T2 O1 - Move card from Tableau 2 to Foundation 1\n"
@@ -118,15 +119,32 @@ void FreecellGame::gameLoop() {
               "  show  - Display the current game state\n"
               "  auto  - Automatically move possible cards to foundations\n";
       continue;
-    }
-    if (command == "show" || command == "display") {
+    } else if (command == "show" || command == "display") {
       display();
       continue;
-    }
-    if (command == "auto") {
+    } else if (command == "auto") {
       board.autoMoveToFoundation();
       display();
       continue;
+    } else if (command.rfind("undo", 0) == 0) {
+      size_t spacePos = command.find(' ');
+      if (spacePos != string::npos) {
+        string nbStr = command.substr(spacePos + 1);
+        try {
+          int nb = stoi(nbStr);
+          undoMoves(nb);
+        } catch (const invalid_argument &) {
+          cout << "Invalid number of moves to undo.\n";
+        }
+      } else {
+        undoMove();
+      }
+      display();
+      continue;
+    } else {
+      boardHistory.push_back(board);
+      std::cout << "Move recorded. Total moves: " << boardHistory.size() - 1
+                << "\n";
     }
     // Parse and execute the command
     size_t spacePos = command.find(' ');
@@ -139,12 +157,34 @@ void FreecellGame::gameLoop() {
       else {
         string nb = to.substr(index + 1);
         to = to.substr(0, index);
-        board.moveSequence(from, to, stoi(nb));
+        try {
+          int count = stoi(nb);
+          board.moveSequence(from, to, count);
+        } catch (const std::exception &) {
+          cout << "Invalid number of cards to move.\n";
+          continue;
+        }
       }
       display();
     } else {
       board.autoMoveOneCard(command);
       display();
     }
+  }
+}
+
+void FreecellGame::undoMove() {
+  if (boardHistory.empty() || boardHistory.size() <= 1) {
+    cout << "No moves to undo.\n";
+    return;
+  }
+  board = boardHistory.back();
+  boardHistory.pop_back();
+  cout << "Move undone.\n";
+}
+
+void FreecellGame::undoMoves(int n) {
+  for (int i = 0; i < n; ++i) {
+    undoMove();
   }
 }
