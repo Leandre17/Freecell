@@ -90,6 +90,7 @@ void FreecellBoard::moveCard(const string &from, const string &to) {
     } else {
       cout << "Invalid destination. Use 'T' for Tableau or 'O' for "
               "Foundation.\n";
+      throw InvalidMoveException();
     }
   } else if (from[0] == 't') {
     // Moving from Tableau
@@ -148,9 +149,11 @@ void FreecellBoard::moveCard(const string &from, const string &to) {
       cout << "Invalid destination. Use 'T' for Tableau, 'F' for Foundation, "
               "or "
               "'C' for Freecell.\n";
+      throw InvalidMoveException();
     }
   } else {
     cout << "Invalid source. Use 'T' for Tableau or 'F' for Freecell.\n";
+    throw InvalidMoveException();
   }
 }
 
@@ -292,6 +295,7 @@ void FreecellBoard::autoMoveOneCard(const string &from) {
     throw InvalidMoveException();
   } else {
     cout << "Invalid source. Use 'T' for Tableau or 'F' for Freecell.\n";
+    throw InvalidMoveException();
   }
 }
 

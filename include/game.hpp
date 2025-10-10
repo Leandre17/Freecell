@@ -2,10 +2,11 @@
 #include <algorithm>
 #include <ctime>
 #include <iostream>
+#include <list>
 #include <random>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <list>
 using namespace std;
 // Game state
 class FreecellGame {
@@ -15,6 +16,8 @@ private:
   list<FreecellBoard> boardHistory;
   bool isWon() const;
   void handleMoveCommands(const string &command);
+  void showHelp() const;
+  void revert();
 
 public:
   FreecellGame();
