@@ -11,22 +11,22 @@
 using namespace std;
 // Game state
 class FreecellGame {
-private:
-  FreecellBoard board;
-  list<string> moveHistory;
-  list<FreecellBoard> boardHistory;
-  // Allow SaveManager to access private members for save/load
-  friend class SaveManager;
-  bool isWon() const;
-  void handleMoveCommands(const string &command);
-  void showHelp() const;
-  void revert();
+  private:
+    FreecellBoard board;
+    list<string> moveHistory;
+    list<FreecellBoard> boardHistory;
+    // Allow SaveManager to access private members for save/load
+    friend class SaveManager;
+    bool isWon() const;
+    void handleMoveCommands(const string& command);
+    void showHelp() const;
+    void revert();
 
-public:
-  FreecellGame();
-  void newGame();
-  void display() const;
-  void gameLoop();
-  void undoMove();
-  void undoMoves(int n);
+  public:
+    FreecellGame();
+    void newGame();
+    void display() const;
+    void gameLoop();
+    void undoMove();
+    void undoMoves(int n);
 };

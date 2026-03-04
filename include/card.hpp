@@ -3,22 +3,22 @@
 
 using namespace std;
 class Card {
-public:
-  Card(char s, int r) : suit(s), rank(r) {}
-  Card() : suit(' '), rank(0) {}
-  Card(Card &&) = default;
-  Card(const Card &) = default;
-  Card &operator=(Card &&) = default;
-  Card &operator=(const Card &) = default;
-  bool operator==(const Card &b) const {
-    return suit == b.suit && rank == b.rank;
-  }
-  ~Card() = default;
+  public:
+    Card(char s, int r) : suit(s), rank(r) {}
+    Card() : suit(' '), rank(0) {}
+    Card(Card&&) = default;
+    Card(const Card&) = default;
+    Card& operator=(Card&&) = default;
+    Card& operator=(const Card&) = default;
+    bool operator==(const Card& b) const {
+        return suit == b.suit && rank == b.rank;
+    }
+    ~Card() = default;
 
-  char suit;
-  int rank;
-  string toString() const;
-  bool isRed() const;
+    char suit;
+    int rank;
+    string toString() const;
+    bool isRed() const;
 };
 
 enum MyEnum { HEARTS = 'H', DIAMONDS = 'D', CLUBS = 'C', SPADES = 'S' };
