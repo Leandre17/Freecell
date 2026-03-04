@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "save.hpp"
 using namespace std;
 
 FreecellGame::FreecellGame() {
@@ -111,6 +112,40 @@ void FreecellGame::gameLoop() {
       board.autoMoveToFoundation();
       display();
       continue;
+    } else if (command.rfind("save", 0) == 0) {
+      // save [filename]
+      string fname = "save.txt";
+      size_t spacePos = command.find(' ');
+      if (spacePos != string::npos) {
+        string arg = command.substr(spacePos + 1);
+        if (!arg.empty())
+          fname = arg;
+      }
+      SaveManager::saveGame(*this, fname);
+      cout << "Game saved to " << fname << "\n";
+      continue;
+    } else if (command.rfind("load", 0) == 0) {
+      // load [filename]
+      string fname = "save.txt";
+      size_t spacePos = command.find(' ');
+      if (spacePos != string::npos) {
+        string arg = command.substr(spacePos + 1);
+        if (!arg.empty())
+          fname = arg;
+      }
+      ifstream ifs(fname);
+      if (!ifs) {
+        cout << "Cannot open file '" << fname << "'\n";
+        continue;
+      }
+      FreecellGame loaded = SaveManager::loadGame(fname);
+      // copy loaded state into current game
+      board = loaded.board;
+      boardHistory = loaded.boardHistory;
+      moveHistory = loaded.moveHistory;
+      cout << "Game loaded from " << fname << "\n";
+      display();
+      continue;
     } else if (command == "revert") {
       revert();
       continue;
@@ -152,21 +187,14 @@ void FreecellGame::handleMoveCommands(const std::string &command) {
 
   if (iss >> from >> to) {
     if (iss >> count) {
-      try {
-        board.moveSequence(from, to, count);
-      } catch (const std::exception &) {
-        std::cout << "Invalid number of cards to move.\n";
-        throw InvalidMoveException();
-      }
+      board.moveSequence(from, to, count);
     } else {
       board.moveCard(from, to);
     }
-    display();
   } else {
-    // single-word command
     board.autoMoveOneCard(command);
-    display();
   }
+  display();
 }
 
 void FreecellGame::undoMove() {
@@ -180,6 +208,10 @@ void FreecellGame::undoMove() {
 }
 
 void FreecellGame::undoMoves(int n) {
+  if (n <= 0) {
+    cout << "Number of moves to undo must be positive.\n";
+    return;
+  }
   for (int i = 0; i < n; ++i) {
     undoMove();
   }

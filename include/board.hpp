@@ -1,3 +1,4 @@
+#pragma once
 #include "card.hpp"
 #include <algorithm>
 #include <ctime>

@@ -1,3 +1,4 @@
+#pragma once
 #include "board.hpp"
 #include <algorithm>
 #include <ctime>
@@ -14,6 +15,8 @@ private:
   FreecellBoard board;
   list<string> moveHistory;
   list<FreecellBoard> boardHistory;
+  // Allow SaveManager to access private members for save/load
+  friend class SaveManager;
   bool isWon() const;
   void handleMoveCommands(const string &command);
   void showHelp() const;
