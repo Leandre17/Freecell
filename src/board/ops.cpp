@@ -11,13 +11,13 @@ bool FreecellBoard::operator!=(const FreecellBoard& b) const {
     return false;
 }
 
-int FreecellBoard::howManyCanMove() const {
-    int emptyFreecells = 0;
+size_t FreecellBoard::howManyCanMove() const {
+    size_t emptyFreecells = 0;
     for (const Card& cell : freecells) {
         if (cell.rank == 0)
             ++emptyFreecells;
     }
-    int emptyTableaus = 0;
+    size_t emptyTableaus = 0;
     for (const auto& col : tableau) {
         if (col.empty())
             ++emptyTableaus;

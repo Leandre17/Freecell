@@ -22,10 +22,10 @@ class FreecellBoard {
     void moveCard(const string& from, const string& to);
     bool canMoveToFoundation(const Card& card, int foundationIndex) const;
     bool canMoveToTableau(const Card& card, int tableauIndex) const;
-    int howManyCanMove() const;
+    size_t howManyCanMove() const;
     void autoMoveToFoundation();
     void autoMoveOneCard(const string& from);
-    void moveSequence(const string& from, const string& to, int count);
+    void moveSequence(const string& from, const string& to, size_t count);
     void display() const;
 };
 

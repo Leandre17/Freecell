@@ -115,7 +115,7 @@ void FreecellBoard::moveCard(const string& from, const string& to) {
     }
 }
 
-void FreecellBoard::moveSequence(const string& from, const string& to, int count) {
+void FreecellBoard::moveSequence(const string& from, const string& to, size_t count) {
     if (from.empty() || to.empty() || count <= 0 || from[0] != 't' || to[0] != 't') {
         cout << "Invalid move command.\n";
         throw InvalidMoveException();
@@ -138,7 +138,7 @@ void FreecellBoard::moveSequence(const string& from, const string& to, int count
         throw InvalidMoveException();
     }
     // Check if the sequence is valid
-    for (int i = 0; i < count - 1; ++i) {
+    for (size_t i = 0; i < count - 1; ++i) {
         const Card& currentCard = tableau[tableauIndex][tableau[tableauIndex].size() - count + i];
         const Card& nextCard = tableau[tableauIndex][tableau[tableauIndex].size() - count + i + 1];
         if (currentCard.rank != nextCard.rank + 1 || currentCard.isRed() == nextCard.isRed()) {
@@ -153,7 +153,7 @@ void FreecellBoard::moveSequence(const string& from, const string& to, int count
         throw InvalidMoveException();
     }
     // Move the cards
-    for (int i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         Card cardToMove = tableau[tableauIndex][tableau[tableauIndex].size() - count + i];
         tableau[tableauDestination].push_back(cardToMove);
     }
