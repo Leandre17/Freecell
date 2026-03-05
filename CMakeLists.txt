@@ -69,6 +69,28 @@ if(ENABLE_CLANG_FORMAT)
 	endif()
 endif()
 
+# Doxygen documentation
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+	set(DOXYGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/docs)
+	set(DOXYGEN_PROJECT_NAME "${PROJECT_NAME}")
+	set(DOXYGEN_INPUT_DIR ${CMAKE_SOURCE_DIR}/include;${CMAKE_SOURCE_DIR}/src)
+	# Doxygen expects space-separated INPUT list; convert from CMake list separator
+	string(REPLACE ";" " " DOXYGEN_INPUT_STR "${DOXYGEN_INPUT_DIR}")
+	set(DOXYGEN_INPUT_DIR "${DOXYGEN_INPUT_STR}")
+
+	configure_file(${CMAKE_SOURCE_DIR}/Doxyfile.in ${CMAKE_BINARY_DIR}/Doxyfile @ONLY)
+
+	add_custom_target(doc
+		COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Generating API documentation with Doxygen"
+		VERBATIM
+	)
+else()
+	message(STATUS "Doxygen not found; 'doc' target will be unavailable")
+endif()
+
 # Install rules
 install(TARGETS freecell
 	RUNTIME DESTINATION bin
