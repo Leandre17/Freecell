@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add the executable
-add_executable(freecell src/main.cpp src/game.cpp src/card.cpp src/board.cpp src/save.cpp)
+add_executable(freecell src/main.cpp src/game/init.cpp src/game/display.cpp src/game/commands.cpp src/game/history.cpp src/card.cpp src/board/checks.cpp src/board/init.cpp src/board/moves.cpp src/board/ops.cpp src/save.cpp)
 
 target_include_directories(freecell PRIVATE include)
 

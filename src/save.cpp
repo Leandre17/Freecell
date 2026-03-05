@@ -143,4 +143,3 @@ FreecellGame SaveManager::loadGame(const string& filename) {
 
     return game;
 }
-#include "save.hpp"
