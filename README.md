@@ -91,7 +91,7 @@ cmake --build build --target coverage -j 4
 
 If `gcovr` is not found when configuring, CMake will warn and the `coverage` target will be unavailable.
 
-
+---
 
 ## Roadmap / Suggestions for improvements
 

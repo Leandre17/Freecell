@@ -14,6 +14,11 @@ add_executable(unit_tests
         test_solver.cpp
     test_save.cpp
     test_moves.cpp
+    test_game.cpp
+    test_game_loop.cpp
+    test_board_ops.cpp
+    test_solver_small.cpp
+    test_moves_branches.cpp
         ../src/card.cpp
         ../src/board/checks.cpp
         ../src/board/init.cpp
