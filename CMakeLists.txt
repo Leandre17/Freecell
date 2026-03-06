@@ -8,6 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(ENABLE_CLANG_FORMAT "Add clang-format targets" ON)
 option(WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
+option(ENABLE_COVERAGE "Build with coverage instrumentation and add coverage target" OFF)
 
 # Source list (explicit is better than globbing at configure-time)
 set(SRC_FILES
@@ -30,8 +31,39 @@ add_executable(freecell ${SRC_FILES})
 target_include_directories(freecell PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(freecell PRIVATE cxx_std_23)
 
+# Coverage: when enabled, add compiler and linker flags and expose a `coverage` target
+if(ENABLE_COVERAGE)
+	if(MSVC)
+		message(WARNING "Code coverage with gcovr is not supported on MSVC. Disable ENABLE_COVERAGE or use a GCC/Clang toolchain.")
+	else()
+		message(STATUS "Building with coverage instrumentation")
+		# Enable debug symbols and no optimizations to get accurate coverage
+		add_compile_options(-O0 -g --coverage)
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+		set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
+	endif()
+endif()
+
 if(EXISTS ${CMAKE_SOURCE_DIR}/tests/CMakeLists.txt)
+	enable_testing()
 	add_subdirectory(tests)
+endif()
+
+# Add a coverage target after tests are available
+if(ENABLE_COVERAGE AND EXISTS ${CMAKE_SOURCE_DIR}/tests/CMakeLists.txt)
+	find_program(GCOVR_BIN NAMES gcovr gcovr.py)
+	if(NOT GCOVR_BIN)
+		message(WARNING "gcovr not found; 'coverage' target will be unavailable. Install gcovr (pip install gcovr) or make it available in PATH.")
+	else()
+		add_custom_target(coverage
+			COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target unit_tests
+			COMMAND ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_BINARY_DIR} --output-on-failure
+			COMMAND ${CMAKE_COMMAND} -E env "LC_ALL=C" ${GCOVR_BIN} -r ${CMAKE_SOURCE_DIR} --exclude ".*_deps.*" --exclude ".*tests/.*" --html --html-details -o ${CMAKE_BINARY_DIR}/coverage.html --xml ${CMAKE_BINARY_DIR}/coverage.xml
+			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+			COMMENT "Build, run unit tests and generate coverage report with gcovr (output: ${CMAKE_BINARY_DIR}/coverage.html)"
+			VERBATIM
+		)
+	endif()
 endif()
 
 # Compiler warnings and options

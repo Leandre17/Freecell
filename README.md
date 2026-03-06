@@ -44,6 +44,7 @@ cmake --build .
 - Sources: [src/](src/)
 - Headers: [include/](include/)
 - Build outputs: [build/](build/)
+- Tests: [tests/](tests/)
 
 Formatting:
 
@@ -57,6 +58,40 @@ cmake --build build --target clang-format-check
 Save / Load
 
 The game writes/reads its persistent state from `save.txt` in the project root (see `save.cpp`). Use this to continue an in-progress game.
+
+
+**Running Tests**
+
+- The project uses Catch2 (fetched automatically at build time). To build and run the unit
+  tests with CMake:
+
+```sh
+mkdir -p build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build --target unit_tests -j 4
+ctest --test-dir build --output-on-failure -j 4
+```
+
+- You can also run the test executable directly:
+
+```sh
+./build/tests/unit_tests
+```
+
+**Coverage (gcovr)**
+
+To generate a coverage report using `gcovr`, enable the coverage build and run the CMake `coverage` target. `gcovr` must be installed and available in `PATH` (for example via `pip install gcovr`).
+
+```sh
+mkdir -p build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+cmake --build build --target coverage -j 4
+# Output: build/coverage.html and build/coverage.xml
+```
+
+If `gcovr` is not found when configuring, CMake will warn and the `coverage` target will be unavailable.
+
+
 
 ## Roadmap / Suggestions for improvements
 
