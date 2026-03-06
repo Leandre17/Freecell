@@ -1,5 +1,6 @@
 #include "game.hpp"
 #include "save.hpp"
+#include "solver.hpp"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -73,6 +74,53 @@ void FreecellGame::gameLoop() {
         } else if (command == "revert") {
             revert();
             continue;
+        } else if (command == "hint") {
+            Solver s;
+            std::string h = s.hint(board);
+            if (h.empty())
+                std::cout << "No hint available.\n";
+            else
+                std::cout << "Hint: " << h << "\n";
+            continue;
+        } else if (command.rfind("solve", 0) == 0) {
+            // optional: solve [maxNodes]
+            size_t maxNodes = 50000;
+            size_t spacePos = command.find(' ');
+            if (spacePos != std::string::npos) {
+                std::string arg = command.substr(spacePos + 1);
+                try {
+                    maxNodes = std::stoul(arg);
+                } catch (...) {
+                    // ignore, keep default
+                }
+            }
+            Solver s;
+            std::cout << "Solving (limit=" << maxNodes << ")...\n";
+            auto path = s.solve(board, maxNodes);
+            if (path.empty()) {
+                std::cout << "No solution found within node limit.\n";
+            } else {
+                std::cout << "Solution found (" << path.size() << " moves):\n";
+                for (size_t i = 0; i < path.size(); ++i)
+                    std::cout << "  " << (i + 1) << ". " << path[i] << "\n";
+                std::cout << "Apply solution? (y/n): ";
+                std::string answer;
+                std::getline(std::cin, answer);
+                if (!answer.empty() && (answer[0] == 'y' || answer[0] == 'Y')) {
+                    for (const auto& cmd : path) {
+                        try {
+                            handleMoveCommands(cmd);
+                            boardHistory.push_back(board);
+                            moveHistory.push_back(cmd);
+                        } catch (...) {
+                            std::cout << "Failed to apply move: " << cmd << "\n";
+                            break;
+                        }
+                    }
+                }
+            }
+            display();
+            continue;
         } else if (command.rfind("undo", 0) == 0) {
             size_t spacePos = command.find(' ');
             if (spacePos != std::string::npos) {
@@ -128,6 +176,10 @@ void FreecellGame::showHelp() const {
               << "  T4 F2 - Move card from Tableau 4 to Freecell 2\n"
               << "  T5 T6 3 - Move sequence of 3 cards from Tableau 5 to Tableau 6\n"
               << "  T2   - Auto-move top card from Tableau 2 to Foundation if possible\n"
+              << "  hint  - Show a single suggested move\n"
+              << "  solve [maxNodes] - Attempt to solve (optional node limit)\n"
+              << "  save [filename] - Save the current game (default: save.txt)\n"
+              << "  load [filename] - Load a saved game (default: save.txt)\n"
               << "  quit  - Quit the game\n"
               << "  help  - Show this help message\n"
               << "  reset - Start a new game\n"

@@ -13,6 +13,7 @@ option(WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 set(SRC_FILES
 	src/main.cpp
 	src/card.cpp
+	src/solver.cpp
 	src/save.cpp
 	src/game/init.cpp
 	src/game/display.cpp
@@ -28,6 +29,10 @@ add_executable(freecell ${SRC_FILES})
 
 target_include_directories(freecell PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_features(freecell PRIVATE cxx_std_23)
+
+if(EXISTS ${CMAKE_SOURCE_DIR}/tests/CMakeLists.txt)
+	add_subdirectory(tests)
+endif()
 
 # Compiler warnings and options
 if(MSVC)

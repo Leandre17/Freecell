@@ -49,7 +49,7 @@ class FreecellBoard {
      * @param from source location string
      * @param to destination location string
      */
-    void moveCard(const string& from, const string& to);
+    void moveCard(const string& from, const string& to, bool verbose = true);
 
     bool canMoveToFoundation(const Card& card, int foundationIndex) const;
     bool canMoveToTableau(const Card& card, int tableauIndex) const;
