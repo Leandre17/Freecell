@@ -10,9 +10,13 @@ FetchContent_MakeAvailable(catch2)
 
 add_executable(unit_tests
     test_card.cpp
+    test_card_extra.cpp
     test_board.cpp
+    test_board_extra.cpp
     test_solver.cpp
+    test_solver_extra.cpp
     test_commands.cpp
+    test_history.cpp
     test_save.cpp
     test_moves.cpp
     test_game.cpp
