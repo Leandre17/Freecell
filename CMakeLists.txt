@@ -10,25 +10,31 @@ option(ENABLE_CLANG_FORMAT "Add clang-format targets" ON)
 option(WARNINGS_AS_ERRORS "Treat warnings as errors" ON)
 option(ENABLE_COVERAGE "Build with coverage instrumentation and add coverage target" OFF)
 
+# Project directories
+set(PROJECT_SRC_DIR ${CMAKE_SOURCE_DIR}/src CACHE PATH "Project source directory")
+set(PROJECT_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include CACHE PATH "Project include directory")
+
 # Source list (explicit is better than globbing at configure-time)
 set(SRC_FILES
-	src/main.cpp
-	src/card.cpp
-	src/solver.cpp
-	src/save.cpp
-	src/game/init.cpp
-	src/game/display.cpp
-	src/game/commands.cpp
-	src/game/history.cpp
-	src/board/checks.cpp
-	src/board/init.cpp
-	src/board/moves.cpp
-	src/board/ops.cpp
+    ${PROJECT_SRC_DIR}/main.cpp
+    ${PROJECT_SRC_DIR}/card.cpp
+    ${PROJECT_SRC_DIR}/solver.cpp
+    ${PROJECT_SRC_DIR}/save.cpp
+    ${PROJECT_SRC_DIR}/game/init.cpp
+    ${PROJECT_SRC_DIR}/game/display.cpp
+    ${PROJECT_SRC_DIR}/game/commands.cpp
+    ${PROJECT_SRC_DIR}/game/history.cpp
+    ${PROJECT_SRC_DIR}/board/checks.cpp
+    ${PROJECT_SRC_DIR}/board/init.cpp
+    ${PROJECT_SRC_DIR}/board/moves.cpp
+    ${PROJECT_SRC_DIR}/board/ops.cpp
 )
 
 add_executable(freecell ${SRC_FILES})
 
-target_include_directories(freecell PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(freecell PRIVATE ${PROJECT_INCLUDE_DIR})
+# Expose project source list to subdirectories (tests, etc.)
+set(PROJECT_SRC_FILES ${SRC_FILES} CACHE INTERNAL "Project source files (absolute paths)")
 target_compile_features(freecell PRIVATE cxx_std_23)
 
 # Coverage: when enabled, add compiler and linker flags and expose a `coverage` target
@@ -84,10 +90,10 @@ if(ENABLE_CLANG_FORMAT)
 	find_program(CLANG_FORMAT_BIN NAMES clang-format clang-format-13 clang-format-12)
 	if(CLANG_FORMAT_BIN)
 		file(GLOB_RECURSE ALL_SOURCE_FILES
-			"${CMAKE_SOURCE_DIR}/src/*.cpp"
-			"${CMAKE_SOURCE_DIR}/src/*.c"
-			"${CMAKE_SOURCE_DIR}/include/*.h"
-			"${CMAKE_SOURCE_DIR}/include/*.hpp"
+			"${PROJECT_SRC_DIR}/*.cpp"
+			"${PROJECT_SRC_DIR}/*.c"
+			"${PROJECT_INCLUDE_DIR}/*.h"
+			"${PROJECT_INCLUDE_DIR}/*.hpp"
 		)
 
 		add_custom_target(format
@@ -111,7 +117,7 @@ find_package(Doxygen)
 if(DOXYGEN_FOUND)
 	set(DOXYGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/docs)
 	set(DOXYGEN_PROJECT_NAME "${PROJECT_NAME}")
-	set(DOXYGEN_INPUT_DIR ${CMAKE_SOURCE_DIR}/include;${CMAKE_SOURCE_DIR}/src)
+	set(DOXYGEN_INPUT_DIR ${PROJECT_INCLUDE_DIR};${PROJECT_SRC_DIR})
 	# Doxygen expects space-separated INPUT list; convert from CMake list separator
 	string(REPLACE ";" " " DOXYGEN_INPUT_STR "${DOXYGEN_INPUT_DIR}")
 	set(DOXYGEN_INPUT_DIR "${DOXYGEN_INPUT_STR}")

@@ -24,20 +24,10 @@ add_executable(unit_tests
     test_board_ops.cpp
     test_solver_small.cpp
     test_moves_branches.cpp
-    ../src/card.cpp
-    ../src/board/checks.cpp
-    ../src/board/init.cpp
-    ../src/board/moves.cpp
-    ../src/board/ops.cpp
-    ../src/solver.cpp
-    ../src/save.cpp
-    ../src/game/commands.cpp
-    ../src/game/display.cpp
-    ../src/game/history.cpp
-    ../src/game/init.cpp
+    ${PROJECT_SRC_FILES}
 )
 
-target_include_directories(unit_tests PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(unit_tests PRIVATE ${PROJECT_INCLUDE_DIR})
 target_compile_features(unit_tests PRIVATE cxx_std_23)
 target_link_libraries(unit_tests PRIVATE Catch2::Catch2WithMain)
 
